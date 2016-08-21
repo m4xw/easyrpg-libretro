@@ -19,6 +19,10 @@
 
 #ifdef HAVE_WILDMIDI
 
+#ifdef __LIBRETRO__
+#include "libretro.h"
+#endif
+
 // Headers
 #include <cassert>
 #include <stdlib.h>
@@ -41,6 +45,8 @@ static void WildMidiDecoder_deinit(void) {
 }
 
 WildMidiDecoder::WildMidiDecoder(const std::string file_name) {
+   char wildmidi_cfg[1024];
+
 	music_type = "midi";
 	filename = file_name;
 	std::string config_file = "";
@@ -50,52 +56,25 @@ WildMidiDecoder::WildMidiDecoder(const std::string file_name) {
 	if (init)
 		return;
 
-	/* find the configuration file in different paths on different platforms
-	 * FIXME: move this logic into some configuration class
-	 */
-#ifdef GEKKO
-	// preferred under /data
-	config_file = "usb:/data/wildmidi/wildmidi.cfg";
-	found = FileFinder::Exists(config_file);
-	if (!found) {
-		config_file = "sd:/data/wildmidi/wildmidi.cfg";
-		found = FileFinder::Exists(config_file);
-	}
+   snprintf(wildmidi_cfg, sizeof(wildmidi_cfg), "%s", "wildmidi.cfg");
+#ifdef __LIBRETRO__
+   extern retro_environment_t environ_cb;
+   const char *dir = NULL;
 
-	// app directory
-	if (!found) {
-		config_file = "wildmidi.cfg";
-		found = FileFinder::Exists(config_file);
-	}
-
-	// same, but legacy from SDL_mixer's timidity
-	if (!found) {
-		config_file = "usb:/data/timidity/timidity.cfg";
-		found = FileFinder::Exists(config_file);
-	}
-	if (!found) {
-		config_file = "sd:/data/timidity/timidity.cfg";
-		found = FileFinder::Exists(config_file);
-	}
-	if (!found) {
-		config_file = "timidity.cfg";
-		found = FileFinder::Exists(config_file);
-	}
+   if (environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &dir) && dir)
+   {
+#ifdef _WIN32
+      char slash = '\\';
 #else
-	// TODO
-	config_file = "wildmidi.cfg";
-	found = FileFinder::Exists(config_file);
+      char slash = '/';
+#endif
+      snprintf(wildmidi_cfg, sizeof(wildmidi_cfg), "%s%cwildmidi.cfg",
+            dir, slash);
+   }
 #endif
 
-	// bail, if nothing found
-	if (!found) {
-		error_message = "WildMidi: Could not find configuration file.";
-		return;
-	}
-
-	Output::Debug("WildMidi: Using %s as configuration file...", config_file.c_str());
-
-	init = (WildMidi_Init(config_file.c_str(), WILDMIDI_FREQ, WILDMIDI_OPTS) == 0);
+	// FIXME: write some logic to find the configuration file in different paths
+	init = (WildMidi_Init(wildmidi_cfg, WILDMIDI_FREQ, WILDMIDI_OPTS) == 0);
 	if (!init) {
 		error_message = "Could not initialize libWildMidi";
 		return;
