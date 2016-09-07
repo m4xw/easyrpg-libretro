@@ -19,6 +19,8 @@
 
 #ifdef HAVE_WILDMIDI
 
+#include <stdlib.h>
+
 #ifdef __LIBRETRO__
 #include "libretro.h"
 #endif
