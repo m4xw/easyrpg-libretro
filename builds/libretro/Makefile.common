@@ -8,14 +8,16 @@ LIBSNDFILE_DIR    := $(DEPS_DIR)/libsndfile
 WILDMIDI_DIR		:= $(DEPS_DIR)/wildmidi
 TREMOR_DIR        := $(DEPS_DIR)/tremor
 LIBSAMPLERATE_DIR := $(DEPS_DIR)/libsamplerate
+ZLIB_DIR := $(DEPS_DIR)/libz
 
 COMMON_DEFINES := -DHAVE_PTHREADS 
 
-INCDIR := -I$(CORE_DIR) -I$(EASYRPG_DIR) -I$(DEPS_DIR) -I$(LIBPNG_DIR) -I$(LIBLCF_DIR)/src -I$(PIXMAN_DIR) -I$(LIBLCF_DIR)/src/generated -I$(LIBRETRO_COMM_DIR)/include -I$(LIBRETRO_COMM_DIR)/include/compat
+INCDIR := -I$(CORE_DIR) -I$(EASYRPG_DIR) -I$(DEPS_DIR) -I$(LIBPNG_DIR) -I$(LIBLCF_DIR)/src -I$(PIXMAN_DIR) -I$(LIBLCF_DIR)/src/generated -I$(LIBRETRO_COMM_DIR)/include -I$(LIBRETRO_COMM_DIR)/include/compat -I$(ZLIB_DIR)
 
 SOURCES_CXX := \
 	$(EASYRPG_DIR)/async_handler.cpp \
 	$(EASYRPG_DIR)/audio.cpp \
+	$(EASYRPG_DIR)/audio_secache.cpp \
 	$(EASYRPG_DIR)/audio_decoder.cpp \
 	$(EASYRPG_DIR)/audio_resampler.cpp \
 	$(EASYRPG_DIR)/audio_libretro.cpp \
@@ -56,7 +58,7 @@ SOURCES_CXX := \
 	$(EASYRPG_DIR)/midisequencer.cpp \
 	$(EASYRPG_DIR)/midisynth.cpp \
 	$(EASYRPG_DIR)/rect.cpp \
-	$(EASYRPG_DIR)/registry_wine.cpp \
+	$(EASYRPG_DIR)/registry_libretro.cpp \
 	$(EASYRPG_DIR)/rtp_table.cpp \
 	$(EASYRPG_DIR)/scene.cpp \
 	$(EASYRPG_DIR)/scene_actortarget.cpp \
@@ -69,8 +71,10 @@ SOURCES_CXX := \
 	$(EASYRPG_DIR)/scene_shop.cpp \
 	$(EASYRPG_DIR)/scene_skill.cpp \
 	$(EASYRPG_DIR)/scene_status.cpp \
+	$(EASYRPG_DIR)/scene_teleport.cpp \
 	$(EASYRPG_DIR)/shinonome_gothic.cpp \
 	$(EASYRPG_DIR)/shinonome_mincho.cpp \
+	$(EASYRPG_DIR)/shinonome_wqy.cpp \
 	$(EASYRPG_DIR)/spriteset_battle.cpp \
 	$(EASYRPG_DIR)/tone.cpp \
 	$(EASYRPG_DIR)/utils.cpp \
@@ -79,7 +83,6 @@ SOURCES_CXX := \
 	$(EASYRPG_DIR)/battle_animation.cpp \
 	$(EASYRPG_DIR)/bitmap.cpp \
 	$(EASYRPG_DIR)/cache.cpp \
-	$(EASYRPG_DIR)/effects.cpp \
 	$(EASYRPG_DIR)/font.cpp \
 	$(EASYRPG_DIR)/frame.cpp \
 	$(EASYRPG_DIR)/game_picture.cpp \
@@ -148,6 +151,7 @@ SOURCES_CXX := \
 	$(EASYRPG_DIR)/window_shopstatus.cpp \
 	$(EASYRPG_DIR)/window_skill.cpp \
 	$(EASYRPG_DIR)/window_skillstatus.cpp \
+	$(EASYRPG_DIR)/window_teleport.cpp \
 	$(EASYRPG_DIR)/window_targetstatus.cpp \
 	$(EASYRPG_DIR)/window_varlist.cpp \
 	$(LIBLCF_DIR)/src/data.cpp \
