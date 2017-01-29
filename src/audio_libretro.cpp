@@ -67,10 +67,20 @@ void LibretroAudio::BGM_Stop(){
 		slock_unlock(mutex);
 	}
 }
-bool LibretroAudio::BGM_PlayedOnce(){
+
+
+bool LibretroAudio::BGM_PlayedOnce() const{
 	return BGM_PlayedOnceIndicator;
 }
-unsigned LibretroAudio::BGM_GetTicks(){
+
+bool LibretroAudio::BGM_IsPlaying() const {
+	for(unsigned i=0;i<nr_of_bgm_channels;i++){
+		if(!BGM_Channels[i].stopped) return true;
+	}
+	return false;
+}
+
+unsigned LibretroAudio::BGM_GetTicks() const{
 	unsigned ticks=0;
 	slock_lock(mutex);
 	for(unsigned i=0;i<nr_of_bgm_channels;i++){
