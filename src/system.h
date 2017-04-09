@@ -127,7 +127,6 @@
 
 #ifdef USE_LIBRETRO
 #  define SUPPORT_KEYBOARD
-#  define SUPPORT_AUDIO
 #  define SUPPORT_WAV
 #  ifdef WANT_FMMIDI
 #    define SUPPORT_MID
