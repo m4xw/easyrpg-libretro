@@ -326,4 +326,5 @@ RETRO_API void *retro_get_memory_data(unsigned id) {
 RETRO_API size_t retro_get_memory_size(unsigned id) {
     return 0;
 }
+
 #endif
