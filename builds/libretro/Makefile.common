@@ -10,8 +10,7 @@ WILDMIDI_DIR		:= $(DEPS_DIR)/wildmidi
 TREMOR_DIR        := $(DEPS_DIR)/tremor
 LIBSAMPLERATE_DIR := $(DEPS_DIR)/libsamplerate
 ZLIB_DIR          := $(DEPS_DIR)/libz
-
-COMMON_DEFINES := -DHAVE_PTHREADS -DWANT_FMMIDI
+COMMON_DEFINES    += -DHAVE_PTHREADS -DWANT_FMMIDI
 
 INCDIR :=         \
 						-I$(CORE_DIR) \
