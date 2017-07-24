@@ -10,6 +10,8 @@ easyrpg-player
 # autotools
 /autom4te.cache/
 /easyrpg-player-*/
+/lib/TestGame/
+/lib/RTP/
 /.libs/
 .deps/
 Makefile.in
