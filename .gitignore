@@ -16,7 +16,6 @@ easyrpg-player
 .deps/
 Makefile.in
 aclocal.m4
-config.h
 config.h.in
 config.status
 configure
