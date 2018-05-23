@@ -14,9 +14,9 @@
 #include <vector>
 #include <iosfwd>
 #include <cstring>
-#include <cstdio>
 #include <cassert>
-#include "reader_types.h"
+#include <memory>
+#include <stdint.h>
 #include "lcf_options.h"
 #include "reader_util.h"
 
@@ -35,28 +35,15 @@ public:
 	/**
 	 * Constructs a new File Reader.
 	 *
-	 * @param filename file to open.
+	 * @param filestream already opened filestream.
 	 * @param encoding name of the encoding.
 	 */
-	LcfReader(const char* filename, std::string encoding = "");
-
-	/**
-	 * Constructs a new File Reader.
-	 *
-	 * @param filename file to open.
-	 * @param encoding name of the encoding.
-	 */
-	LcfReader(const std::string& filename, std::string encoding = "");
+	LcfReader(std::istream& filestream, std::string encoding = "");
 
 	/**
 	 * Destructor. Closes the opened file.
 	 */
 	~LcfReader();
-
-	/**
-	 * Closes the opened file.
-	 */
-	void Close();
 
 	/**
 	 * Returns the last set error.
@@ -180,13 +167,11 @@ public:
 	uint32_t Tell();
 
 	/**
-	 * Puts a character (ch) back into the stream.
-	 * This should usually be the last read one.
+	 * Returns the next char in the stream and doesn't advance the position.
 	 *
-	 * @param ch char that will be readded to the stream.
-	 * @return true if the operation was successful.
+	 * @return next char in the buffer or EOF
 	 */
-	bool Ungetch(uint8_t ch);
+	int Peek();
 
 #ifdef _DEBUG
 	/**
@@ -228,12 +213,10 @@ public:
 	static int IntSize(unsigned int x);
 
 private:
-	/** Name of the file that is associated with the stream. */
-	std::string filename;
 	/** Name of the encoding. */
 	std::string encoding;
 	/** File-stream managed by this Reader. */
-	FILE* stream;
+	std::istream& stream;
 	/** Contains the last set error. */
 	static std::string error_str;
 
@@ -250,6 +233,13 @@ private:
 	 * @param us integer to convert.
 	 */
 	static void SwapByteOrder(uint16_t &us);
+
+	/**
+	 * Converts a 32bit signed integer to/from little-endian.
+	 *
+	 * @param us integer to convert.
+	 */
+	static void SwapByteOrder(int32_t &us);
 
 	/**
 	 * Converts a 32bit unsigned integer to/from little-endian.

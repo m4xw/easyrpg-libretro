@@ -11,6 +11,7 @@
 #define LCF_READER_UTIL_H
 
 #include <string>
+#include <vector>
 
 /**
  * ReaderUtil namespace.
@@ -27,21 +28,40 @@ namespace ReaderUtil {
 	/**
 	 * Detects the encoding based on text analysis.
 	 *
-	 * @param text a string with few hundred of words to analyze.
+	 * @param filestream stream containing the database file
 	 *
 	 * @return encoding or empty string if not detected.
 	 */
-	std::string DetectEncoding(const std::string& database_file);
+	std::string DetectEncoding(std::istream& filestream);
+
+	/**
+	 * Detects the encoding based on text analysis.
+	 *
+	 * @param filestream stream containing the database file
+	 *
+	 * @return encoding or empty string if not detected.
+	 */
+	std::string DetectEncoding(const std::string& data);
 
 	/**
 	 * Detects the encoding based on text analysis and returns a vector with
 	 * possible candidates, highest candidate being at the beginning.
 	 *
-	 * @param text a string with few hundred of words to analyze.
+	 * @param filestream stream containing the database file
 	 *
 	 * @return list of encodings or empty if not detected
 	 */
-	std::vector<std::string> DetectEncodings(const std::string& database_file);
+	std::vector<std::string> DetectEncodings(std::istream& filestream);
+
+	/**
+	 * Detects the encoding based on text analysis and returns a vector with
+	 * possible candidates, highest candidate being at the beginning.
+	 *
+	 * @param string encoded data of a few hundred bytes
+	 *
+	 * @return list of encodings or empty if not detected
+	 */
+	std::vector<std::string> DetectEncodings(const std::string& data);
 
 	/**
 	 * Returns the encoding set in the ini file.
@@ -51,6 +71,15 @@ namespace ReaderUtil {
 	 * @return encoding or empty string if not found.
 	 */
 	std::string GetEncoding(const std::string& ini_file);
+
+	/**
+	 * Returns the encoding set in the ini file.
+	 *
+	 * @param filestream The ini file to parse.
+	 *
+	 * @return encoding or empty string if not found.
+	 */
+	std::string GetEncoding(std::istream& filestream);
 
 	/**
 	 * Returns the system encoding based on current locale settings.
@@ -80,6 +109,50 @@ namespace ReaderUtil {
 	std::string Recode(const std::string& str_to_encode,
 					   const std::string& src_enc,
 					   const std::string& dst_enc);
+
+	/**
+	 * Helper function that returns an element from a vector using a 1-based
+	 * index as usually used by LCF data structures.
+	 *
+	 * @param vec Vector to return element from
+	 * @param one_based_index index to access vector at "index - 1"
+	 * @return element or nullptr when "index - 1" is out of bounds
+	 */
+	template<typename T>
+	T* GetElement(std::vector<T>& vec, int one_based_index) {
+		if (one_based_index < 1) {
+			return nullptr;
+		}
+
+		// index is nonnegative, safe to cast
+		if (static_cast<typename std::vector<T>::size_type>(one_based_index) > vec.size()) {
+			return nullptr;
+		}
+
+		return &vec[one_based_index - 1];
+	}
+
+	/**
+	 * Helper function that returns an element from a vector using a 1-based
+	 * index as usually used by LCF data structures.
+	 *
+	 * @param vec Vector to return element from
+	 * @param one_based_index index to access vector at "index - 1"
+	 * @return element or nullptr when "index - 1" is out of bounds
+	 */
+	template<typename T>
+	const T* GetElement(const std::vector<T>& vec, int one_based_index) {
+		if (one_based_index < 1) {
+			return nullptr;
+		}
+
+		// index is nonnegative, safe to cast
+		if (static_cast<typename std::vector<T>::size_type>(one_based_index) > vec.size()) {
+			return nullptr;
+		}
+
+		return &vec[one_based_index - 1];
+	}
 }
 
 #endif
