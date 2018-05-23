@@ -13,8 +13,8 @@
 #define LCF_RPG_PARAMETERS_H
 
 // Headers
+#include <stdint.h>
 #include <vector>
-#include "reader_types.h"
 
 /**
  * RPG::Parameters class.
@@ -23,7 +23,6 @@ namespace RPG {
 	class Parameters {
 	public:
 		void Setup(int final_level);
-
 		std::vector<int16_t> maxhp;
 		std::vector<int16_t> maxsp;
 		std::vector<int16_t> attack;
