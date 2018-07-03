@@ -257,7 +257,7 @@ void Player::Update(bool update_scene) {
 	Graphics::Draw();
 #elif defined(USE_LIBRETRO)
 	// Libretro ensures the fps
-	Graphics::Update(true);
+	Graphics::Draw();
 #else
 	double cur_time = (double)DisplayUi->GetTicks();
 	if (cur_time < next_frame) {

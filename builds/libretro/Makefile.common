@@ -53,6 +53,7 @@ SOURCES_CXX := 	\
 						$(EASYRPG_DIR)/decoder_mpg123.cpp \
 						$(EASYRPG_DIR)/decoder_opus.cpp \
 						$(EASYRPG_DIR)/decoder_xmp.cpp \
+						$(EASYRPG_DIR)/drawable.cpp \
 						$(EASYRPG_DIR)/filefinder.cpp \
 						$(EASYRPG_DIR)/font.cpp \
 						$(EASYRPG_DIR)/fps_overlay.cpp \
@@ -107,7 +108,6 @@ SOURCES_CXX := 	\
 						$(EASYRPG_DIR)/psp2_ui.cpp \
 						$(EASYRPG_DIR)/rect.cpp \
 						$(EASYRPG_DIR)/registry.cpp \
-						$(EASYRPG_DIR)/registry_libretro.cpp \
 						$(EASYRPG_DIR)/registry_wine.cpp \
 						$(EASYRPG_DIR)/rtp_table.cpp \
 						$(EASYRPG_DIR)/scene_actortarget.cpp \
@@ -149,6 +149,7 @@ SOURCES_CXX := 	\
 						$(EASYRPG_DIR)/tilemap.cpp \
 						$(EASYRPG_DIR)/tilemap_layer.cpp \
 						$(EASYRPG_DIR)/tone.cpp \
+						$(EASYRPG_DIR)/transition.cpp \
 						$(EASYRPG_DIR)/utils.cpp \
 						$(EASYRPG_DIR)/util_win.cpp \
 						$(EASYRPG_DIR)/weather.cpp \
@@ -266,6 +267,7 @@ SOURCES_CXX := 	\
 						$(LIBLCF_DIR)/src/generated/lsd_savemapinfo.cpp \
 						$(LIBLCF_DIR)/src/generated/lsd_savepartylocation.cpp \
 						$(LIBLCF_DIR)/src/generated/lsd_savepicture.cpp \
+						$(LIBLCF_DIR)/src/generated/lsd_savepicture_flags.cpp \
 						$(LIBLCF_DIR)/src/generated/lsd_savescreen.cpp \
 						$(LIBLCF_DIR)/src/generated/lsd_savesystem.cpp \
 						$(LIBLCF_DIR)/src/generated/lsd_savetarget.cpp \
