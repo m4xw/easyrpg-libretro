@@ -24,6 +24,9 @@
 #       define NOMINMAX
 #   endif
 #   include <windows.h>
+#   ifndef LCF_SUPPORT_ICU
+#       include <iconv.h>
+#   endif
 #else
 #   ifndef LCF_SUPPORT_ICU
 #       include <iconv.h>
