@@ -1,25 +1,27 @@
 EASYRPG_DIR       := $(CORE_DIR)/src
 DEPS_DIR          := $(CORE_DIR)/lib
 LIBLCF_DIR        := $(DEPS_DIR)/liblcf
-PIXMAN_DIR			:= $(DEPS_DIR)/pixman
 LIBRETRO_COMM_DIR := $(DEPS_DIR)/libretro-common
-LIBPNG_DIR        := $(DEPS_DIR)/libpng
-LIBSNDFILE_DIR    := $(DEPS_DIR)/libsndfile
-LIBICONV_DIR		:= $(DEPS_DIR)/libiconv
-WILDMIDI_DIR		:= $(DEPS_DIR)/wildmidi
-TREMOR_DIR        := $(DEPS_DIR)/tremor
-LIBSAMPLERATE_DIR := $(DEPS_DIR)/libsamplerate
-ZLIB_DIR          := $(DEPS_DIR)/libz
-COMMON_DEFINES    += -DHAVE_PTHREADS -DWANT_FMMIDI
+COMMON_DEFINES    += -DHAVE_PTHREADS -DWANT_FMMIDI -DSUPPORT_AUDIO \
+			-DHAVE_MPG123 -DHAVE_LIBSNDFILE -DHAVE_OGGVORBIS \
+			-DHAVE_WILDMIDI \
+			-DHAVE_LIBSAMPLERATE -DWANT_FMMIDI \
+			-DLCF_SUPPORT_ICU
+#-DWANT_FASTWAV -DHAVE_XMP
+LDFLAGS           += -L$(DEPS_DIR)/lib
+
+LIBS              += -lexpat -lpixman-1 -lpng -lz \
+			-licuuc -licui18n -licudata \
+			-lmpg123 -lsndfile -lvorbisfile -lvorbis -logg \
+			-lWildMidi -lsamplerate -lm
 
 INCDIR :=         \
 						-I$(CORE_DIR) \
 						-I$(EASYRPG_DIR) \
-						-I$(DEPS_DIR) \
-						-I$(LIBPNG_DIR) \
-						-I$(ZLIB_DIR) \
-						-I$(LIBLCF_DIR)/src \
-						-I$(PIXMAN_DIR) \
+						-I$(DEPS_DIR)/include \
+						-I$(DEPS_DIR)/include/pixman-1 \
+						-I$(DEPS_DIR)/include/freetype2 \
+						-I$(DEPS_DIR)/include/libxmp-lite \
 						-I$(LIBLCF_DIR)/src \
 						-I$(LIBLCF_DIR)/src/generated \
 						-I$(LIBRETRO_COMM_DIR)/include \
@@ -51,7 +53,9 @@ SOURCES_CXX := 	\
 						$(EASYRPG_DIR)/decoder_fmmidi.cpp \
 						$(EASYRPG_DIR)/decoder_libsndfile.cpp \
 						$(EASYRPG_DIR)/decoder_mpg123.cpp \
+						$(EASYRPG_DIR)/decoder_oggvorbis.cpp \
 						$(EASYRPG_DIR)/decoder_opus.cpp \
+						$(EASYRPG_DIR)/decoder_wildmidi.cpp \
 						$(EASYRPG_DIR)/decoder_xmp.cpp \
 						$(EASYRPG_DIR)/drawable.cpp \
 						$(EASYRPG_DIR)/filefinder.cpp \
@@ -279,202 +283,3 @@ SOURCES_CXX := 	\
 SOURCES_C := 		\
 						$(LIBRETRO_COMM_DIR)/rthreads/rthreads.c
 
-
-SOURCES_C += 		\
-						$(LIBPNG_DIR)/png.c \
-						$(LIBPNG_DIR)/pngerror.c \
-						$(LIBPNG_DIR)/pngget.c \
-						$(LIBPNG_DIR)/pngmem.c \
-						$(LIBPNG_DIR)/pngpread.c \
-						$(LIBPNG_DIR)/pngread.c \
-						$(LIBPNG_DIR)/pngrio.c \
-						$(LIBPNG_DIR)/pngrtran.c \
-						$(LIBPNG_DIR)/pngrutil.c \
-						$(LIBPNG_DIR)/pngset.c \
-						$(LIBPNG_DIR)/pngtrans.c \
-						$(LIBPNG_DIR)/pngwio.c \
-						$(LIBPNG_DIR)/pngwrite.c \
-						$(LIBPNG_DIR)/pngwtran.c \
-						$(LIBPNG_DIR)/pngwutil.c
-
-SOURCES_C += 		\
-						$(PIXMAN_DIR)/pixman.c \
-						$(PIXMAN_DIR)/pixman-access.c \
-						$(PIXMAN_DIR)/pixman-access-accessors.c \
-						$(PIXMAN_DIR)/pixman-combine32.c \
-						$(PIXMAN_DIR)/pixman-combine-float.c \
-						$(PIXMAN_DIR)/pixman-conical-gradient.c \
-						$(PIXMAN_DIR)/pixman-filter.c \
-						$(PIXMAN_DIR)/pixman-edge.c \
-						$(PIXMAN_DIR)/pixman-edge-accessors.c \
-						$(PIXMAN_DIR)/pixman-fast-path.c \
-						$(PIXMAN_DIR)/pixman-glyph.c \
-						$(PIXMAN_DIR)/pixman-general.c \
-						$(PIXMAN_DIR)/pixman-gradient-walker.c	\
-						$(PIXMAN_DIR)/pixman-image.c \
-						$(PIXMAN_DIR)/pixman-implementation.c \
-						$(PIXMAN_DIR)/pixman-linear-gradient.c	\
-						$(PIXMAN_DIR)/pixman-matrix.c \
-						$(PIXMAN_DIR)/pixman-noop.c \
-						$(PIXMAN_DIR)/pixman-radial-gradient.c \
-						$(PIXMAN_DIR)/pixman-region16.c \
-						$(PIXMAN_DIR)/pixman-region32.c \
-						$(PIXMAN_DIR)/pixman-solid-fill.c \
-						$(PIXMAN_DIR)/pixman-bits-image.c \
-						$(PIXMAN_DIR)/pixman-timer.c \
-						$(PIXMAN_DIR)/pixman-trap.c \
-						$(PIXMAN_DIR)/pixman-utils.c \
-						$(PIXMAN_DIR)/pixman-x86.c \
-						$(PIXMAN_DIR)/pixman-arm.c \
-						$(PIXMAN_DIR)/pixman-mips.c
-
-ifeq ($(HAVE_LIBSNDFILE), 1)
-COMMON_DEFINES += -DHAVE_LIBSNDFILE
-SOURCES_C += 		\
-						$(LIBSNDFILE_DIR)/src/common.c \
-						$(LIBSNDFILE_DIR)/src/file_io.c \
-						$(LIBSNDFILE_DIR)/src/command.c \
-						$(LIBSNDFILE_DIR)/src/pcm.c \
-						$(LIBSNDFILE_DIR)/src/ulaw.c \
-						$(LIBSNDFILE_DIR)/src/alaw.c \
-						$(LIBSNDFILE_DIR)/src/float32.c \
-						$(LIBSNDFILE_DIR)/src/double64.c \
-						$(LIBSNDFILE_DIR)/src/ima_adpcm.c \
-						$(LIBSNDFILE_DIR)/src/ms_adpcm.c \
-						$(LIBSNDFILE_DIR)/src/gsm610.c \
-						$(LIBSNDFILE_DIR)/src/dwvw.c \
-						$(LIBSNDFILE_DIR)/src/vox_adpcm.c \
-						$(LIBSNDFILE_DIR)/src/interleave.c \
-						$(LIBSNDFILE_DIR)/src/strings.c \
-						$(LIBSNDFILE_DIR)/src/dither.c \
-						$(LIBSNDFILE_DIR)/src/broadcast.c \
-						$(LIBSNDFILE_DIR)/src/audio_detect.c \
-						$(LIBSNDFILE_DIR)/src/ima_oki_adpcm.c \
-						$(LIBSNDFILE_DIR)/src/chunk.c \
-						$(LIBSNDFILE_DIR)/src/ogg.c \
-						$(LIBSNDFILE_DIR)/src/chanmap.c \
-						$(LIBSNDFILE_DIR)/src/windows.c \
-						$(LIBSNDFILE_DIR)/src/id3.c \
-						$(LIBSNDFILE_DIR)/src/sndfile.c \
-						$(LIBSNDFILE_DIR)/src/aiff.c \
-						$(LIBSNDFILE_DIR)/src/au.c \
-						$(LIBSNDFILE_DIR)/src/avr.c \
-						$(LIBSNDFILE_DIR)/src/caf.c \
-						$(LIBSNDFILE_DIR)/src/dwd.c \
-						$(LIBSNDFILE_DIR)/src/flac.c \
-						$(LIBSNDFILE_DIR)/src/g72x.c \
-						$(LIBSNDFILE_DIR)/src/htk.c \
-						$(LIBSNDFILE_DIR)/src/ircam.c \
-						$(LIBSNDFILE_DIR)/src/macbinary3.c \
-						$(LIBSNDFILE_DIR)/src/macos.c \
-						$(LIBSNDFILE_DIR)/src/mat4.c \
-						$(LIBSNDFILE_DIR)/src/mat5.c \
-						$(LIBSNDFILE_DIR)/src/nist.c \
-						$(LIBSNDFILE_DIR)/src/paf.c \
-						$(LIBSNDFILE_DIR)/src/pvf.c \
-						$(LIBSNDFILE_DIR)/src/raw.c \
-						$(LIBSNDFILE_DIR)/src/rx2.c \
-						$(LIBSNDFILE_DIR)/src/sd2.c \
-						$(LIBSNDFILE_DIR)/src/sds.c \
-						$(LIBSNDFILE_DIR)/src/svx.c \
-						$(LIBSNDFILE_DIR)/src/txw.c \
-						$(LIBSNDFILE_DIR)/src/voc.c \
-						$(LIBSNDFILE_DIR)/src/wve.c \
-						$(LIBSNDFILE_DIR)/src/w64.c \
-						$(LIBSNDFILE_DIR)/src/wav_w64.c \
-						$(LIBSNDFILE_DIR)/src/wav.c \
-						$(LIBSNDFILE_DIR)/src/xi.c \
-						$(LIBSNDFILE_DIR)/src/mpc2k.c \
-						$(LIBSNDFILE_DIR)/src/rf64.c \
-						$(LIBSNDFILE_DIR)/src/GSM610/add.c \
-						$(LIBSNDFILE_DIR)/src/GSM610/code.c \
-						$(LIBSNDFILE_DIR)/src/GSM610/decode.c \
-						$(LIBSNDFILE_DIR)/src/GSM610/gsm_create.c \
-						$(LIBSNDFILE_DIR)/src/GSM610/gsm_decode.c \
-						$(LIBSNDFILE_DIR)/src/GSM610/gsm_destroy.c \
-						$(LIBSNDFILE_DIR)/src/GSM610/gsm_encode.c \
-						$(LIBSNDFILE_DIR)/src/GSM610/gsm_option.c \
-						$(LIBSNDFILE_DIR)/src/GSM610/long_term.c \
-						$(LIBSNDFILE_DIR)/src/GSM610/lpc.c \
-						$(LIBSNDFILE_DIR)/src/GSM610/preprocess.c \
-						$(LIBSNDFILE_DIR)/src/GSM610/rpe.c \
-						$(LIBSNDFILE_DIR)/src/GSM610/short_term.c \
-						$(LIBSNDFILE_DIR)/src/GSM610/table.c \
-						$(LIBSNDFILE_DIR)/src/G72x/g721.c \
-						$(LIBSNDFILE_DIR)/src/G72x/g723_16.c \
-						$(LIBSNDFILE_DIR)/src/G72x/g723_24.c \
-						$(LIBSNDFILE_DIR)/src/G72x/g723_40.c \
-						$(LIBSNDFILE_DIR)/src/G72x/g72x.c
-endif
-
-ifeq ($(HAVE_TREMOR), 1)
-	COMMON_DEFINES += -DHAVE_OGGVORBIS -DHAVE_TREMOR
-	SOURCES_CXX += $(EASYRPG_DIR)/decoder_oggvorbis.cpp
-   SOURCES_C += $(wildcard $(TREMOR_DIR)/*.c)
-endif
-
-ifeq ($(WANT_FASTWAV), 1)
-	COMMON_DEFINES += -DWANT_FASTWAV
-	SOURCES_CXX += $(EASYRPG_DIR)/decoder_wav.cpp
-endif
-
-ifeq ($(WANT_WILDMIDI), 1)
-	COMMON_DEFINES += -DHAVE_WILDMIDI
-	INCDIR += -I$(WILDMIDI_DIR)/include
-	SOURCES_CXX += $(EASYRPG_DIR)/decoder_wildmidi.cpp
-	SOURCES_C += $(WILDMIDI_DIR)/src/f_hmi.c \
-					 $(WILDMIDI_DIR)/src/f_hmp.c \
-					 $(WILDMIDI_DIR)/src/f_midi.c \
-					 $(WILDMIDI_DIR)/src/f_mus.c \
-					 $(WILDMIDI_DIR)/src/f_xmidi.c \
-					 $(WILDMIDI_DIR)/src/file_io.c \
-					 $(WILDMIDI_DIR)/src/getopt_long.c \
-					 $(WILDMIDI_DIR)/src/gus_pat.c \
-					 $(WILDMIDI_DIR)/src/internal_midi.c \
-					 $(WILDMIDI_DIR)/src/lock.c \
-					 $(WILDMIDI_DIR)/src/mus2mid.c \
-					 $(WILDMIDI_DIR)/src/patches.c \
-					 $(WILDMIDI_DIR)/src/reverb.c \
-					 $(WILDMIDI_DIR)/src/sample.c \
-					 $(WILDMIDI_DIR)/src/wildmidi_lib.c \
-					 $(WILDMIDI_DIR)/src/wm_error.c \
-					 $(WILDMIDI_DIR)/src/xmi2mid.c
-endif
-
-ifeq ($(WANT_LIBSAMPLERATE), 1)
-	COMMON_DEFINES += -DHAVE_LIBSAMPLERATE
-	INCDIR += -I$(LIBSAMPLERATE_DIR)
-	SOURCES_C += $(LIBSAMPLERATE_DIR)/samplerate.c \
-					 $(LIBSAMPLERATE_DIR)/src_linear.c \
-					 $(LIBSAMPLERATE_DIR)/src_sinc.c \
-					 $(LIBSAMPLERATE_DIR)/src_zoh.c
-endif
-
-ifeq ($(WANT_LIBICONV), 1)
-INCDIR += \
-			 -I$(LIBICONV_DIR)/include \
-			 -I$(LIBICONV_DIR)/lib \
-			 -I$(LIBICONV_DIR)/libcharset/include
-
-SOURCES_C += $(LIBICONV_DIR)/lib/iconv.c \
-				 $(LIBICONV_DIR)/lib/relocatable.c \
-				 $(LIBICONV_DIR)/libcharset/lib/localcharset.c
-endif
-
-COMMON_DEFINES += -DWANT_ZLIB
-
-SOURCES_C += $(ZLIB_DIR)/adler32.c \
-				 $(ZLIB_DIR)/compress.c \
-				 $(ZLIB_DIR)/crc32.c \
-				 $(ZLIB_DIR)/deflate.c \
-				 $(ZLIB_DIR)/gzclose.c \
-				 $(ZLIB_DIR)/gzlib.c \
-				 $(ZLIB_DIR)/gzread.c \
-				 $(ZLIB_DIR)/gzwrite.c \
-				 $(ZLIB_DIR)/infback.c \
-				 $(ZLIB_DIR)/inffast.c \
-				 $(ZLIB_DIR)/inflate.c \
-				 $(ZLIB_DIR)/inftrees.c \
-				 $(ZLIB_DIR)/trees.c \
-				 $(ZLIB_DIR)/uncompr.c \
-				 $(ZLIB_DIR)/zutil.c

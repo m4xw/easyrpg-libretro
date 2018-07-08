@@ -77,7 +77,7 @@ function set_build_flags {
 		export CC="ccache $CC"
 		export CXX="ccache $CXX"
 	fi
-	export CFLAGS="$RETRO_CFlAGS"
+	export CFLAGS="$RETRO_CFLAGS"
 	export CXXFLAGS="$RETRO_CXXFLAGS"
 	export CPPFLAGS="-I$PLATFORM_PREFIX/include $RETRO_CPPFLAGS"
 	export LDFLAGS="-L$PLATFORM_PREFIX/lib $RETRO_LDFLAGS"

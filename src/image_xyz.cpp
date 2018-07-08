@@ -26,11 +26,6 @@
 #include "output.h"
 #include "image_xyz.h"
 
-#if defined(USE_LIBRETRO)
-#include <compat/zutil.h>
-int uncompress(unsigned char *a, uint32_t *b, const unsigned char *c, uint32_t d);
-#endif
-
 bool ImageXYZ::ReadXYZ(const uint8_t* data, unsigned len, bool transparent,
 					   int& width, int& height, void*& pixels) {
 	pixels = nullptr;
@@ -44,12 +39,11 @@ bool ImageXYZ::ReadXYZ(const uint8_t* data, unsigned len, bool transparent,
 	uint16_t h = data[6] + (data[7] << 8);
 	uint32_t src_size = len - 8;
 	uint8_t* src_buffer = (uint8_t*)&data[8];
-	uint32_t dst_size = 768 + (w * h);
+	uLongf dst_size = 768 + (w * h);
 	std::vector<uint8_t> dst_buffer(dst_size);
 
 	int status = uncompress(&dst_buffer.front(), &dst_size, (const unsigned char*)src_buffer, src_size);
-	if (status != 0)
-   {
+	if (status != 0) {
 		Output::Warning("Error decompressing XYZ file.");
 		return false;
 	}
