@@ -1,0 +1,197 @@
+DEBUG=0
+RETRO_CROSSCOMPILING=0
+
+ifeq ($(platform),)
+	platform = unix
+	ifeq ($(shell uname -a),)
+		platform = win
+	else ifneq ($(findstring MINGW,$(shell uname -a)),)
+		platform = win
+	else ifneq ($(findstring Darwin,$(shell uname -a)),)
+		platform = osx
+	else ifneq ($(findstring win,$(shell uname -a)),)
+		platform = win
+	endif
+endif
+
+# Unix
+ifeq ($(platform), unix)
+	fpic := -fPIC
+	SHARED := -shared -Wl,--no-undefined
+	LIBS += -lpthread
+
+# Haiku
+ifneq (,$(findstring Haiku,$(shell uname -s)))
+	LDFLAGS += -liconv
+endif
+
+# OS X
+else ifeq ($(platform), osx)
+	fpic := -fPIC
+	SHARED := -dynamiclib
+	ifndef ($(NOUNIVERSAL))
+		CFLAGS += $(ARCHFLAGS)
+		CXXFLAGS += $(ARCHFLAGS)
+		LDFLAGS += $(ARCHFLAGS)
+	endif
+        LDFLAGS += -liconv
+
+# iOS
+else ifneq (,$(findstring ios,$(platform)))
+	RETRO_CROSSCOMPILING=1
+	ifeq ($(IOSSDK),)
+		IOSSDK := $(shell xcodebuild -version -sdk iphoneos Path)
+	endif
+ifeq ($(platform),ios-arm64)
+	RETRO_CROSSCOMPILING=1
+	CC = cc -arch arm64 -isysroot $(IOSSDK)
+	CXX = clang++ -arch arm64 -isysroot $(IOSSDK)
+else
+	RETRO_CROSSCOMPILING=1
+	CC = clang -arch armv7 -isysroot $(IOSSDK)
+	CXX = clang++ -arch armv7 -isysroot $(IOSSDK)
+endif
+	RETRO_CROSSCOMPILING=1
+	CXXFLAGS = -DUSE_POSIX_MEMALIGN -D__RETRO_ARM__
+	fpic := -fPIC
+	SHARED := -dynamiclib
+ifeq ($(platform),$(filter $(platform),ios9 ios-arm64))
+CC       += -miphoneos-version-min=8.0
+CXX      += -miphoneos-version-min=8.0
+CFLAGS   += -miphoneos-version-min=8.0
+CXXFLAGS += -miphoneos-version-min=8.0
+else
+CC       += -miphoneos-version-min=7.0
+CXX      += -miphoneos-version-min=7.0
+CFLAGS   += -miphoneos-version-min=7.0
+CXXFLAGS += -miphoneos-version-min=7.0
+endif
+        LDFLAGS += -liconv
+
+# Theos iOS
+else ifeq ($(platform), theos_ios)
+	RETRO_CROSSCOMPILING=1
+	DEPLOYMENT_IOSVERSION = 7.0
+	ARCHS = armv7 armv7s
+	TARGET_IPHONEOS_DEPLOYMENT_VERSION=$(DEPLOYMENT_IOSVERSION)
+	THEOS_BUILD_DIR := objs
+	include $(THEOS)/makefiles/common.mk
+
+	LIBRARY_NAME = $(TARGET_NAME)_libretro_ios
+
+	COMMON_DEFINES = -DUSE_POSIX_MEMALIGN -D__RETRO_ARM__
+
+# QNX
+else ifneq (,$(findstring qnx,$(platform)))
+	RETRO_CROSSCOMPILING=1
+	fpic := -fPIC
+	SHARED := -shared -Wl,--version-script=link.T
+	CC = qcc -Vgcc_ntoarmv7le
+	CXX = QCC -Vgcc_ntoarmv7le_cpp
+	AR = QCC -Vgcc_ntoarmv7le
+
+# Vita
+else ifeq ($(platform), vita)
+	RETRO_CROSSCOMPILING=1
+	TARGET_HOST = arm-vita-eabi
+	CC = arm-vita-eabi-gcc$(EXE_EXT)
+	CXX = arm-vita-eabi-g++$(EXE_EXT)
+	AR = arm-vita-eabi-ar$(EXE_EXT)
+	CXXFLAGS += -DVITA
+	CFLAGS   += -DVITA
+	STATIC_LINKING = 1
+
+# Android
+else ifeq ($(platform), android)
+	RETRO_CROSSCOMPILING=1
+	TARGET_HOST = arm-linux-androideabi
+	CC = arm-linux-androideabi-gcc$(EXE_EXT)
+	CXX = arm-linux-androideabi-g++$(EXE_EXT)
+	CXXFLAGS += -D__RETRO_ARM__
+	fpic := -fPIC
+	SHARED := -shared -Wl,--version-script=link.T
+
+	ifeq ($(RETRO_PROFILE),1)
+		LDFLAGS += -llog
+	endif
+
+# ARM
+else ifneq (,$(findstring armv,$(platform)))
+	RETRO_CROSSCOMPILING=1
+	CXXFLAGS += -DUSE_POSIX_MEMALIGN -D__RETRO_ARM__
+	SHARED := -shared -Wl,--no-undefined -Wl,--version-script=link.T
+	LIBS += -lpthread
+	fpic := -fPIC
+	ifneq (,$(findstring clang,$(platform)))
+		CC = clang
+		CXX = clang++
+		AR = clang
+	endif
+	ifneq (,$(findstring cortexa5,$(platform)))
+		CXXFLAGS += -marm -mcpu=cortex-a5
+	else ifneq (,$(findstring cortexa8,$(platform)))
+		CXXFLAGS += -marm -mcpu=cortex-a8
+	else ifneq (,$(findstring cortexa9,$(platform)))
+		CXXFLAGS += -marm -mcpu=cortex-a9
+	else ifneq (,$(findstring cortexa15a7,$(platform)))
+		CXXFLAGS += -marm -mcpu=cortex-a15.cortex-a7
+	else
+		CXXFLAGS += -marm
+	endif
+	ifneq (,$(findstring softfloat,$(platform)))
+		CXXFLAGS += -mfloat-abi=softfp
+	else ifneq (,$(findstring hardfloat,$(platform)))
+		CXXFLAGS += -mfloat-abi=hard
+	endif
+	CXXFLAGS += -DARM
+
+# Emscripten
+else ifeq ($(platform), emscripten)
+	STATIC_LINKING = 1
+
+# Windows
+else
+	CC = gcc
+	CXX = g++
+	SHARED := -shared -static-libgcc -static-libstdc++ -Wl,--version-script=link.T
+	ifeq ($(DEBUG), 0)
+		SHARED += -s
+	endif
+endif
+
+ifeq ($(DEBUG), 1)
+	CXXFLAGS += -g -O0
+else
+	CXXFLAGS += -DNDEBUG -O3
+endif
+
+ifeq ($(RETRO_PROFILE),1)
+	CXXFLAGS += -DRETRO_PROFILE=1
+endif
+
+OBJECTS		= $(SOURCES_CXX:.cpp=.o) $(SOURCES_C:.c=.o)
+CXXFLAGS       += -D__LIBRETRO__ -fpermissive $(fpic) $(INCDIR) -DUSE_LIBRETRO $(COMMON_DEFINES)
+CFLAGS	       += -D__LIBRETRO__ $(fpic) $(INCDIR) -DUSE_LIBRETRO $(COMMON_DEFINES)
+
+ifeq ($(platform), theos_ios)
+COMMON_FLAGS := -DIOS -DARM $(COMMON_DEFINES) $(INCFLAGS) -I$(THEOS_INCLUDE_PATH) -Wno-error
+$(LIBRARY_NAME)_CFLAGS += $(CFLAGS) $(COMMON_FLAGS)
+$(LIBRARY_NAME)_CXXFLAGS += $(CXXFLAGS) $(COMMON_FLAGS)
+${LIBRARY_NAME}_FILES = $(SOURCES_CXX) $(SOURCES_C)
+include $(THEOS_MAKE_PATH)/library.mk
+else
+all:
+	RETRO_CC="$(CC)" RETRO_CXX="$(CXX)" RETRO_CFLAGS="$(CFLAGS)" RETRO_CXXFLAGS="$(CXXFLAGS)" RETRO_CPPFLAGS="$(CPPFLAGS)" RETRO_LDFLAGS="$(LDFLAGS)" RETRO_CROSSCOMPILING=$(RETRO_CROSSCOMPILING) ./2_build_toolchain.sh
+#all: $(TARGET)
+#$(TARGET): $(OBJECTS)
+#ifeq ($(STATIC_LINKING), 1)
+#	$(AR) rcs $@ $(OBJECTS)
+#else
+#	$(CXX) $(LDFLAGS) $(fpic) $(SHARED) -o $@ $(OBJECTS) $(LIBS)
+#endif
+
+clean:
+	rm -f $(OBJECTS) $(TARGET)
+
+.PHONY: clean
+endif
