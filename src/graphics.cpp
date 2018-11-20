@@ -53,7 +53,7 @@ unsigned SecondToFrame(float const second) {
 }
 
 void Graphics::Init() {
-	Scene::Push(std::make_shared<Scene>());
+	Scene::Push(std::make_shared<Scene>(), true);
 	current_scene = Scene::instance;
 	global_state.reset(new State());
 

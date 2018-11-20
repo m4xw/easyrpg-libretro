@@ -148,7 +148,7 @@ void Scene::Update() {
 }
 
 void Scene::Push(std::shared_ptr<Scene> const& new_scene, bool pop_stack_top) {
-	if (pop_stack_top) {
+	if (pop_stack_top && !instances.empty()) {
 		old_instances.push_back(instances.back());
 		instances.pop_back();
 	}

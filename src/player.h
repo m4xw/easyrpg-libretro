@@ -102,10 +102,13 @@ namespace Player {
 	void CreateGameObjects();
 
 	/**
-	 * Resets all game objects. Faster then CreateGameObjects because
+	 * Resets all game objects. Faster than CreateGameObjects because
 	 * the database is not reparsed.
+	 *
+	 * @param exiting When true the Player is currently shutting down
+	 *  which skips some cleanup steps.
 	 */
-	void ResetGameObjects();
+	void ResetGameObjects(bool exiting = false);
 
 	/**
 	 * Loads all databases.

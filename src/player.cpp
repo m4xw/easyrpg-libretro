@@ -337,6 +337,10 @@ void Player::Update(bool update_scene) {
 }
 
 void Player::FrameReset() {
+	if (!DisplayUi) {
+		return;
+	}
+
 	// When update started
 	start_time = (double)DisplayUi->GetTicks();
 
@@ -364,12 +368,13 @@ void Player::Exit() {
 	DisplayUi->UpdateDisplay();
 #endif
 
-	Player::ResetGameObjects();
+	Player::ResetGameObjects(true);
 	Font::Dispose();
 	Graphics::Quit();
 	FileFinder::Quit();
 	Output::Quit();
 	DisplayUi.reset();
+	Scene::PopUntil(Scene::Null);
 
 #ifdef PSP2
 	sceKernelExitProcess(0);
@@ -702,8 +707,8 @@ void Player::CreateGameObjects() {
 	ResetGameObjects();
 }
 
-void Player::ResetGameObjects() {
-	if (Data::system.system_name != Game_System::GetSystemName()) {
+void Player::ResetGameObjects(bool exiting) {
+	if (!exiting && Data::system.system_name != Game_System::GetSystemName()) {
 		FileRequestAsync* request = AsyncHandler::RequestFile("System", Data::system.system_name);
 		request->SetImportantFile(true);
 		system_request_id = request->Bind(&OnSystemFileReady);
