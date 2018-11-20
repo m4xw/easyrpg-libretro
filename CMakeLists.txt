@@ -205,8 +205,8 @@ else()
 	message(FATAL_ERROR "Invalid target platform")
 endif()
 
-# C++11 is required
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_11)
+# C++11 is required (target_compile_features cxx_std_11 requires CMake 3.8)
+set(CMAKE_CXX_STANDARD 11)
 
 if(CMAKE_BUILD_TYPE MATCHES "Debug")
 	target_compile_definitions(${PROJECT_NAME} PUBLIC _DEBUG=1)
