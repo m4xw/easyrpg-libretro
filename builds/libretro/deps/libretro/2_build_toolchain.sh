@@ -70,6 +70,21 @@ fi
 	popd
 done
 
+function install_lib_zlib_windows {
+	echo ""
+	echo "**** Building zlib (Windows) ****"
+	echo ""
+
+	pushd $ZLIB_DIR
+	make -fwin32/Makefile.gcc
+	mkdir -p ../lib ../include
+	cp libz.a ../lib
+	cp z*.h ../include
+	popd
+
+	echo " -> done"
+}
+
 echo "Preparing toolchain"
 
 export PLATFORM_PREFIX=$WORKSPACE
@@ -88,7 +103,11 @@ if [ "$ENABLE_CCACHE" ]; then
 	export CXX="ccache $RETRO_CXX"
 fi
 
-install_lib_zlib
+if [[ "$(uname)" == MINGW* ]]; then
+	install_lib_zlib_windows
+else
+	install_lib_zlib
+fi
 install_lib $LIBPNG_DIR $LIBPNG_ARGS
 install_lib $FREETYPE_DIR $FREETYPE_ARGS --without-harfbuzz
 #install_lib $HARFBUZZ_DIR $HARFBUZZ_ARGS
@@ -106,3 +125,13 @@ install_lib_cmake $WILDMIDI_DIR $WILDMIDI_ARGS
 #install_lib $OPUSFILE_DIR $OPUSFILE_ARGS
 install_lib $ICU_DIR/source $ICU_ARGS
 install_lib liblcf
+
+if [[ "$(uname)" == MINGW* ]]; then
+	# Fix ICU static library names
+	pushd lib
+	mv libsicudt.a libicudt.a
+	mv libsicuin.a libicuin.a
+	mv libsicutu.a libicutu.a
+	mv libsicuuc.a libicuuc.a
+	popd
+fi
